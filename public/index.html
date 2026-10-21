@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AM Activate App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eceff4; --frame: #f6f7fa; --card: #ffffff; --field: #f1f4f9; --line: #e6eaf2;
+  --navy: #0b1f3f; --navy2: #0a1a35; --ink: #0f1b33; --dim: #7b8497;
+  --accent: #3b6fd8; --soft: #dbe6fb; --soft2: #eef3fd; --lite: #8fb4ff;
+  --ok-bg: #e3f6e9; --ok: #1d8a45; --err-bg: #fde9e6; --err: #c2371f;
+  --ui: 'Manrope', system-ui, sans-serif; --mono: 'DM Mono', ui-monospace, monospace;
+  --shadow: 0 10px 30px rgba(15,27,51,.08);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 14.5px; line-height: 1.5; font-weight: 500 }
+.page {
+  display: flex; justify-content: center; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.app { width: 100%; max-width: 430px; min-width: 0; filter: blur(14px); user-select: none; -webkit-user-select: none; transition: filter .3s ease }
+.unlocked .app { filter: none; user-select: auto; -webkit-user-select: auto }
+.unlocked .lock { display: none }
+@media (min-width: 600px) {
+  .page { padding-block: 40px 56px }
+  .app { background: var(--frame); border: 1px solid #fff; border-radius: 44px; padding: 26px 20px 28px; box-shadow: 0 24px 60px rgba(15,27,51,.12) }
+}
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px }
+.who { display: flex; align-items: center; gap: 12px; min-width: 0 }
+.av { width: 50px; height: 50px; flex: none; border-radius: 50%; background: var(--card); box-shadow: var(--shadow); display: grid; place-items: center; color: var(--navy); font-size: 14px }
+.who small { display: block; font-size: 12.5px; color: var(--dim); font-weight: 600 }
+.who strong { font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; color: var(--ink) }
+.by { flex: none; font-family: var(--mono); font-size: 12px; padding: 10px 15px; border-radius: 99px; background: var(--card); box-shadow: var(--shadow); color: var(--navy) }
+
+/* hero (navy) */
+.hero { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 14px; background: linear-gradient(135deg, #0e2a54, var(--navy2) 70%); color: #fff; border-radius: 28px; padding: 18px 18px 18px 20px }
+.hero::after { content: ""; position: absolute; right: -40px; top: -50px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(143,180,255,.22), transparent 70%); pointer-events: none }
+.hero .l { min-width: 0; position: relative; z-index: 1 }
+.hero small { display: block; font-size: 12.5px; color: rgba(255,255,255,.7); font-weight: 600 }
+.num { font-size: 52px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 4px 0 12px; font-variant-numeric: tabular-nums; word-break: break-all }
+.pill { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.12); border-radius: 99px; padding: 4px 4px 4px 14px; font-size: 12.5px; font-weight: 700 }
+.pill b { min-width: 34px; height: 28px; padding: 0 10px; border-radius: 99px; background: #fff; color: var(--navy); display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 13px }
+.ring { position: relative; width: 78px; height: 78px; flex: none; z-index: 1 }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg) }
+.ring circle { fill: none; stroke-width: 6 }
+.ring .tr { stroke: rgba(255,255,255,.16) }
+.ring .fg { stroke: var(--lite); stroke-linecap: round; stroke-dasharray: 163.4; stroke-dashoffset: 109.5; transition: stroke-dashoffset .5s ease }
+.ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; font-weight: 800 }
+
+/* steps (light blue) */
+.stepcard { margin-top: 12px; background: linear-gradient(180deg, var(--soft), var(--soft2)); border-radius: 28px; padding: 16px 16px 18px; border: 1px solid #fff }
+.sc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px }
+.sc-head h2 { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.01em }
+.chip { font-size: 11.5px; font-weight: 700; color: var(--navy); background: rgba(255,255,255,.75); border-radius: 99px; padding: 5px 12px; white-space: nowrap }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px }
+.cols > div { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 10px 12px; border-radius: 18px; background: rgba(255,255,255,.45); border: 1.5px dashed rgba(11,31,63,.18); opacity: .7; transition: all .2s ease }
+.cols > div::before { content: "1"; width: 26px; height: 26px; margin-bottom: 8px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--navy); font-size: 12px; font-weight: 800 }
+.cols > div:nth-child(2)::before { content: "2" }
+.cols > div:nth-child(3)::before { content: "3" }
+.cols b { font-size: 14px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2 }
+.cols small { font-size: 11px; color: var(--dim); font-weight: 600; line-height: 1.2 }
+.cols .on { opacity: 1; background: #fff; border: 1.5px solid #fff; box-shadow: 0 6px 16px rgba(15,27,51,.08) }
+.cols .on::before { background: var(--navy); color: #fff }
+.cols .done { opacity: 1 }
+.cols .done::before { content: "\2713" !important; background: var(--accent); color: #fff }
+.now-t { margin: 14px 2px 0; font-size: 13px; font-weight: 700; color: var(--navy) }
+
+/* form sheet (white) */
+.sheet { margin-top: 12px; background: var(--card); border-radius: 28px; padding: 20px; box-shadow: var(--shadow) }
+.sheet h3 { margin: 0 0 14px; font-size: 16px; font-weight: 800; letter-spacing: -.01em }
+.hint { color: var(--dim); font-size: 13.5px; margin: 0 0 16px }
+.hint b { color: var(--ink); word-break: break-all }
+label { display: block; font-size: 12.5px; font-weight: 700; color: var(--dim); margin: 0 0 8px 4px }
+input { width: 100%; background: var(--field); color: var(--ink); border: 1.5px solid transparent; border-radius: 20px; font: inherit; font-weight: 600; padding: 15px 18px; outline: none; transition: border-color .15s, background .15s }
+input::placeholder { color: #a2a9b8 }
+input:focus-visible { border-color: var(--accent); background: #fff }
+.btns { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap }
+button { background: linear-gradient(135deg, #0e2a54, var(--navy2)); color: #fff; border: 0; border-radius: 99px; font: inherit; font-weight: 800; font-size: 15px; padding: 15px 26px; cursor: pointer; transition: transform .1s, filter .1s }
+button:hover { filter: brightness(1.12) }
+button:active { transform: none; filter: none }
+button:focus, button:focus-visible { outline: none }
+button:disabled { opacity: .55; cursor: wait }
+#b1 { width: 100% }
+#b3 { flex: 1 }
+button.sec { background: var(--field); color: var(--navy) }
+button.tiny { font-size: 13px; padding: 11px 18px }
+.msg { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 18px; font-size: 14px; font-weight: 700 }
+.msg.err { display: block; background: var(--err-bg); color: var(--err) }
+.msg.ok { display: block; background: var(--ok-bg); color: var(--ok) }
+.okh { display: inline-block; background: var(--ok-bg); color: var(--ok); border-radius: 99px; padding: 4px 14px; font-weight: 800; font-size: 14px; margin-bottom: 8px }
+.kv { display: flex; justify-content: space-between; gap: 14px; padding: 11px 2px; border-bottom: 1px solid var(--line); font-size: 14px }
+.kv b { color: var(--dim); font-weight: 600 }
+.kv span { font-family: var(--mono); font-size: 12.5px; text-align: right; word-break: break-all; max-width: 64%; color: var(--navy) }
+.tok { background: var(--field); color: var(--navy); border-radius: 18px; padding: 14px 16px; font-family: var(--mono); font-size: 11px; word-break: break-all; max-height: 96px; overflow: hidden }
+
+
+/* PIN lock */
+.lock {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; overflow-y: auto;
+  background: rgba(236,239,244,.55);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.dialog { width: 100%; max-width: 340px; background: linear-gradient(160deg, #0e2a54, var(--navy2) 75%); color: #fff; border-radius: 34px; padding: 28px 20px 26px; text-align: center; box-shadow: 0 30px 80px rgba(11,31,63,.35) }
+.lock .av { margin: 0 auto; background: rgba(255,255,255,.12); color: #fff; box-shadow: none }
+.lock h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 18px 0 6px }
+.lock p { color: rgba(255,255,255,.7); margin: 0 0 26px }
+.pin { width: 100%; margin-bottom: 12px; padding: 16px 12px 16px calc(12px + .4em); border-radius: 22px; text-align: center; font-size: 26px; font-weight: 700; letter-spacing: .4em; background: rgba(255,255,255,.1); color: #fff }
+.pin::placeholder { letter-spacing: .4em; color: rgba(255,255,255,.4) }
+.pin:focus-visible { border-color: var(--lite); background: rgba(255,255,255,.14) }
+.pin.shake { animation: shake .4s; border-color: #ff9b78 }
+@keyframes shake { 20%, 60% { transform: translateX(-8px) } 40%, 80% { transform: translateX(8px) } }
+.perr { min-height: 20px; margin-bottom: 14px; color: #ffb199; font-weight: 700; font-size: 13px }
+.hide { display: none }
+@media (max-width: 380px) { .num { font-size: 42px } .ring { width: 66px; height: 66px } .cols b { font-size: 13px } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+
+/* hilangkan efek tekan biru */
+html, body, button, input, .pill, .cols div, .hero {
+  -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+  -webkit-touch-callout: none;
+}
+button, .pill, .hero, .stepcard {
+  -webkit-user-select: none; user-select: none;
+  touch-action: manipulation;
+  outline: none !important;
+}
+::selection { background: transparent }
+input::selection { background: rgba(59,111,216,.25); color: inherit }
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px var(--field) inset !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  caret-color: var(--ink);
+}
+.pin:-webkit-autofill, .pin:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px #1c3868 inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <section class="lock" id="lock">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="lt">
+    <div class="av">&#9654;</div>
+    <h1 id="lt">Masukkan PIN</h1>
+    <p>PIN 8 digit untuk membuka halaman ini.</p>
+    <input id="pin" class="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" aria-label="PIN">
+    <div class="perr" id="perr"></div>
+    </div>
+  </section>
+
+<main class="app" inert>
+
+  <header class="top">
+    <div class="who">
+      <div class="av">
+        <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+          <defs><linearGradient id="avg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b6fd8"/><stop offset="1" stop-color="#0b1f3f"/></linearGradient></defs>
+          <path fill="url(#avg)" d="M11 2.5c.6 4.6 2.9 6.9 7.5 7.5-4.6.6-6.9 2.9-7.5 7.5-.6-4.6-2.9-6.9-7.5-7.5 4.6-.6 6.9-2.9 7.5-7.5z"/>
+          <path fill="url(#avg)" d="M18.5 14.5c.25 1.9 1.1 2.75 3 3-1.9.25-2.75 1.1-3 3-.25-1.9-1.1-2.75-3-3 1.9-.25 2.75-1.1 3-3z"/>
+        </svg>
+      </div>
+      <div><small>Alight Motion Premium</small><strong>am / activate</strong></div>
+    </div>
+    <span class="by">by rrama</span>
+  </header>
+
+  <section class="hero">
+    <div class="l">
+      <small>Total aktivasi</small>
+      <div class="num" id="st-total">0</div>
+      <div class="pill"><span>Hari ini</span><b id="st-today">0</b></div>
+    </div>
+    <div class="ring">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="tr" cx="32" cy="32" r="26"></circle><circle class="fg" id="ring" cx="32" cy="32" r="26"></circle></svg>
+      <span id="pct">33%</span>
+    </div>
+  </section>
+
+  <section class="stepcard">
+    <div class="sc-head">
+      <h2>Langkah aktivasi</h2>
+      <span class="chip" id="cur-sub">langkah 1 dari 3</span>
+    </div>
+    <div class="cols">
+      <div id="n1" class="on"><b>Email</b><small>kirim link</small></div>
+      <div id="n2"><b>Link</b><small>verifikasi</small></div>
+      <div id="n3"><b>Selesai</b><small>premium aktif</small></div>
+    </div>
+    <div class="now-t" id="cur-title">Masukkan email</div>
+  </section>
+
+  <div class="sheet">
+    <h3>Aktivasi</h3>
+
+    <div class="panel" id="p1">
+      <p class="hint">Link login dikirim ke email, tanpa password.</p>
+      <label for="em">Email</label>
+      <input id="em" type="email" placeholder="nama@email.com">
+      <div class="btns"><button id="b1">Kirim link</button></div>
+      <div id="m1" class="msg"></div>
+    </div>
+
+    <div class="panel hide" id="p2">
+      <p class="hint">Link terkirim ke <b id="w-em">-</b>. Copy link dari email, paste di sini.</p>
+      <label for="lk">Link verifikasi</label>
+      <input id="lk" type="text" placeholder="https://... atau oobCode">
+      <div class="btns">
+        <button id="b2" class="sec">Kembali</button>
+        <button id="b3">Verifikasi</button>
+      </div>
+      <div id="m2" class="msg"></div>
+    </div>
+
+    <div class="panel hide" id="p3">
+      <div class="okh">Premium aktif</div>
+      <p class="hint">Detail akun di bawah, token bisa dicopy.</p>
+      <div class="kv"><b>email</b><span id="r-em">-</span></div>
+      <div class="kv"><b>uid</b><span id="r-uid">-</span></div>
+      <div class="kv"><b>order</b><span id="r-ord">-</span></div>
+      <label style="margin-top:18px">ID token</label>
+      <div class="tok" id="r-tok">-</div>
+      <div class="btns">
+        <button class="tiny" id="b4">Copy token</button>
+        <button class="tiny sec" id="b5">Aktivasi lain</button>
+      </div>
+    </div>
+  </div>
+
+
+</main></div>
+
+<script>
+const $ = i => document.getElementById(i)
+
+/* PIN lock */
+const PIN_HASH = 3652195938894919
+const hash = s => {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57
+  for (let i = 0, c; i < s.length; i++) {
+    c = s.charCodeAt(i)
+    h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677)
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909)
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0)
+}
+const root = document.documentElement
+const unlock = () => { root.classList.add('unlocked'); document.querySelector('.app').removeAttribute('inert'); try { sessionStorage.setItem('am-ok', '1') } catch {} }
+try { if (sessionStorage.getItem('am-ok') === '1') unlock() } catch {}
+const pinEl = $('pin')
+const check = () => {
+  if (hash(pinEl.value) === PIN_HASH) return unlock()
+  $('perr').textContent = 'PIN salah, coba lagi'
+  pinEl.classList.add('shake')
+  setTimeout(() => { pinEl.value = ''; pinEl.classList.remove('shake'); pinEl.focus() }, 450)
+}
+pinEl.addEventListener('input', () => {
+  pinEl.value = pinEl.value.replace(/\D/g, '').slice(0, 8)
+  $('perr').textContent = ''
+  if (pinEl.value.length === 8) check()
+})
+pinEl.addEventListener('keydown', e => { if (e.key === 'Enter' && pinEl.value) check() })
+if (!root.classList.contains('unlocked')) pinEl.focus()
+
+/* Statistik aktivasi: disimpan di HP (localStorage), tanpa backend */
+const STAT_KEY = 'am-stats'
+const todayKey = () => {
+  const d = new Date()
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+const readStats = () => {
+  let s = { total: 0, today: 0, date: todayKey() }
+  try { s = Object.assign(s, JSON.parse(localStorage.getItem(STAT_KEY) || '{}')) } catch {}
+  if (s.date !== todayKey()) { s.today = 0; s.date = todayKey() }
+  return s
+}
+const showStats = () => {
+  const s = readStats()
+  $('st-total').textContent = Number(s.total || 0).toLocaleString('id-ID')
+  $('st-today').textContent = Number(s.today || 0).toLocaleString('id-ID')
+}
+const bumpStats = () => {
+  const s = readStats()
+  s.total = (Number(s.total) || 0) + 1
+  s.today = (Number(s.today) || 0) + 1
+  try { localStorage.setItem(STAT_KEY, JSON.stringify(s)) } catch {}
+  showStats()
+}
+showStats()
+
+const NAMES = ['Masukkan email', 'Tempel link', 'Premium aktif']
+const step = n => {
+  for (let i = 1; i <= 3; i++) {
+    $('p' + i).classList.toggle('hide', i !== n)
+    $('n' + i).className = i < n ? 'done' : (i === n ? 'on' : '')
+  }
+  const pct = n === 3 ? 100 : Math.round(n / 3 * 100)
+  $('cur-title').textContent = NAMES[n - 1]
+  $('cur-sub').textContent = n === 3 ? 'selesai' : 'langkah ' + n + ' dari 3'
+  $('pct').textContent = pct + '%'
+  $('ring').style.strokeDashoffset = (163.4 * (1 - pct / 100)).toFixed(1)
+}
+const say = (id, txt, ok) => { const m = $(id); m.textContent = txt; m.className = 'msg ' + (ok ? 'ok' : 'err') }
+const busy = (b, on, t) => { b.disabled = on; if (t) b.textContent = t }
+$('b1').onclick = async () => {
+  const em = $('em').value.trim()
+  if (!em.includes('@')) return say('m1', 'email gak valid', 0)
+  const b = $('b1'); busy(b, true, 'Mengirim...')
+  try {
+    const r = await fetch('/api/send-link', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ email: em }) })
+    const j = await r.json()
+    if (j.success) { say('m1', 'link terkirim, cek email', 1); $('w-em').textContent = em; setTimeout(() => step(2), 700) }
+    else say('m1', j.message || 'gagal', 0)
+  } catch { say('m1', 'server gak nyambung', 0) }
+  busy(b, false); b.textContent = 'Kirim link'
+}
+$('b2').onclick = () => step(1)
+$('b3').onclick = async () => {
+  const raw = $('lk').value.trim()
+  if (!raw) return say('m2', 'link kosong', 0)
+  const b = $('b3'); busy(b, true, 'Verifikasi...')
+  try {
+    const r = await fetch('/api/verify-link', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ email: $('w-em').textContent, magicLink: raw }) })
+    const j = await r.json()
+    if (j.success) {
+      const d = j.data
+      $('r-em').textContent = d.email; $('r-uid').textContent = d.uid
+      $('r-ord').textContent = d.orderId || '-'; $('r-tok').textContent = d.idToken
+      window.__tok = d.idToken; bumpStats(); step(3)
+    } else say('m2', j.message || 'gagal', 0)
+  } catch { say('m2', 'server gak nyambung', 0) }
+  busy(b, false); b.textContent = 'Verifikasi'
+}
+$('b4').onclick = () => { try { navigator.clipboard.writeText(window.__tok || '').catch(() => {}) } catch {} ; $('b4').textContent = 'Copied' }
+$('b5').onclick = () => { $('lk').value = ''; step(1) }
+</script>
+</body>
+</html>
